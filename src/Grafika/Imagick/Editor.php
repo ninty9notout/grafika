@@ -471,7 +471,7 @@ final class Editor implements EditorInterface
         $ratio  = $width / $height;
 
         $resizeHeight = $newHeight;
-        $resizeWidth  = $newHeight * $ratio;
+        $resizeWidth  = round($newHeight * $ratio);
 
         $this->_resize($image, $resizeWidth, $resizeHeight);
 
@@ -522,7 +522,7 @@ final class Editor implements EditorInterface
 
         if (($optimumWidth < $newWidth) or ($optimumHeight < $newHeight)) { // Oops, where trying to fill and there are blank areas
             // So base optimum size on height instead
-            $optimumWidth  = $newHeight * $ratio;
+            $optimumWidth  = round($newHeight * $ratio);
             $optimumHeight = $newHeight;
         }
 
@@ -555,7 +555,7 @@ final class Editor implements EditorInterface
         if (($resizeWidth > $newWidth) or ($resizeHeight > $newHeight)) { // Oops, either with or height does not fit
             // So base on height instead
             $resizeHeight = $newHeight;
-            $resizeWidth  = $newHeight * $ratio;
+            $resizeWidth  = round($newHeight * $ratio);
         }
 
         $this->_resize($image, $resizeWidth, $resizeHeight);
@@ -622,6 +622,13 @@ final class Editor implements EditorInterface
         switch (strtoupper($type)) {
             case ImageType::GIF :
                 $image->getCore()->writeImages($file, true); // Support animated image. Eg. GIF
+                break;
+
+            case ImageType::BMP :
+            case ImageType::WEBP :
+                $image->getCore()->setFormat($type);
+                $image->getCore()->setImageCompressionQuality($quality);
+                $image->getCore()->writeImages($file, true);
                 break;
 
             case ImageType::PNG :
@@ -791,7 +798,7 @@ final class Editor implements EditorInterface
 
             // Assign new image with frames
             $image = new Image($imagick->deconstructImages(), $image->getImageFile(), $newWidth, $newHeight,
-                $image->getType());
+                $image->getType(), $image->isAnimated());
         } else { // Single frame image. Eg. JPEG, PNG
 
             $image->getCore()->resizeImage($newWidth, $newHeight, \Imagick::FILTER_LANCZOS, 1, false);
@@ -819,6 +826,12 @@ final class Editor implements EditorInterface
             return ImageType::GIF;
         } else if ('png' == $ext) {
             return ImageType::PNG;
+        } else if ('wbm' == $ext or 'wbmp' == $ext) {
+            return ImageType::WBMP;
+        } else if ('bmp' == $ext) {
+            return ImageType::BMP;
+        } else if ('webp' == $ext) {
+            return ImageType::WEBP;
         } else {
             return ImageType::UNKNOWN;
         }

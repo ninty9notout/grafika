@@ -106,6 +106,14 @@ final class Image implements ImageInterface {
 
             imagewbmp( $this->gd );
 
+        } else if ( ImageType::BMP == $type ) {
+
+            imagebmp( $this->gd );
+
+        } else if ( ImageType::WEBP == $type ) {
+
+            imagewebp( $this->gd );
+
         } else {
             throw new \Exception( sprintf( 'File type "%s" not supported.', $type ) );
         }
@@ -140,6 +148,14 @@ final class Image implements ImageInterface {
         } else if ( ImageType::WBMP == $type ) {
 
             return self::_createWbmp( $imageFile );
+
+        } else if ( ImageType::BMP == $type ) {
+
+            return self::_createBmp( $imageFile );
+
+        } else if ( ImageType::WEBP == $type ) {
+
+            return self::_createWebp( $imageFile );
 
         } else {
             throw new \Exception( sprintf( 'Could not open "%s". File type not supported.', $imageFile ) );
@@ -419,6 +435,42 @@ final class Image implements ImageInterface {
     }
 
     /**
+     * Load a BMP image.
+     *
+     * @param string $imageFile
+     *
+     * @return Image
+     * @throws \Exception
+     */
+    private static function _createBmp( $imageFile ){
+        $gd = @imagecreatefrombmp( $imageFile );
+
+        if(!$gd){
+            throw new \Exception( sprintf('Could not open "%s". Not a valid %s file.', $imageFile, ImageType::BMP) );
+        }
+
+        return new self( $gd, $imageFile, imagesx( $gd ), imagesy( $gd ), ImageType::BMP );
+    }
+
+    /**
+     * Load a WEBP image.
+     *
+     * @param string $imageFile
+     *
+     * @return Image
+     * @throws \Exception
+     */
+    private static function _createWebp( $imageFile ){
+        $gd = @imagecreatefromwebp( $imageFile );
+
+        if(!$gd){
+            throw new \Exception( sprintf('Could not open "%s". Not a valid %s file.', $imageFile, ImageType::WEBP) );
+        }
+
+        return new self( $gd, $imageFile, imagesx( $gd ), imagesy( $gd ), ImageType::WEBP );
+    }
+
+    /**
      * @param $imageFile
      *
      * @return string
@@ -434,21 +486,29 @@ final class Image implements ImageInterface {
 
         unset($width, $height);
 
-        if ( 1 == $type) {
+        if ( IMG_GIF == $type) {
 
             return ImageType::GIF;
 
-        } else if ( 2 == $type) {
+        } else if ( IMG_JPG == $type) {
 
             return ImageType::JPEG;
 
-        } else if ( 3 == $type) {
+        } else if ( IMG_PNG == $type) {
 
             return ImageType::PNG;
 
-        } else if ( 15 == $type) {
+        } else if ( IMG_WBMP == $type) {
 
             return ImageType::WBMP;
+
+        } else if ( IMG_BMP == $type) {
+
+            return ImageType::BMP;
+
+        } else if ( IMG_WEBP == $type) {
+
+            return ImageType::WEBP;
 
         }
 

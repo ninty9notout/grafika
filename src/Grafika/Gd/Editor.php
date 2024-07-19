@@ -573,7 +573,7 @@ final class Editor implements EditorInterface
         $ratio  = $width / $height;
 
         $resizeHeight = $newHeight;
-        $resizeWidth  = $newHeight * $ratio;
+        $resizeWidth  = round($newHeight * $ratio);
 
         $this->_resize($image, $resizeWidth, $resizeHeight);
 
@@ -624,7 +624,7 @@ final class Editor implements EditorInterface
 
         if (($optimumWidth < $newWidth) or ($optimumHeight < $newHeight)) { // Oops, where trying to fill and there are blank areas
             // So base optimum size on height instead
-            $optimumWidth  = $newHeight * $ratio;
+            $optimumWidth  = round($newHeight * $ratio);
             $optimumHeight = $newHeight;
         }
 
@@ -657,7 +657,7 @@ final class Editor implements EditorInterface
         if (($resizeWidth > $newWidth) or ($resizeHeight > $newHeight)) { // Oops, either with or height does not fit
             // So base on height instead
             $resizeHeight = $newHeight;
-            $resizeWidth  = $newHeight * $ratio;
+            $resizeWidth  = round($newHeight * $ratio);
         }
 
         $this->_resize($image, $resizeWidth, $resizeHeight);
@@ -746,6 +746,14 @@ final class Editor implements EditorInterface
             case ImageType::PNG :
                 // PNG is lossless and does not need compression. Although GD allow values 0-9 (0 = no compression), we leave it alone.
                 imagepng($image->getCore(), $file);
+                break;
+
+            case ImageType::BMP :
+                imagebmp($image->getCore(), $file);
+                break;
+
+            case ImageType::WEBP :
+                imagewebp($image->getCore(), $file, $quality);
                 break;
 
             default: // Defaults to jpeg
@@ -1058,6 +1066,10 @@ final class Editor implements EditorInterface
             return ImageType::PNG;
         } else if ('wbm' === $ext or 'wbmp' === $ext) {
             return ImageType::WBMP;
+        } else if ('bmp' === $ext) {
+            return ImageType::BMP;
+        } else if ('webp' === $ext) {
+            return ImageType::WEBP;
         } else {
             return ImageType::UNKNOWN;
         }
